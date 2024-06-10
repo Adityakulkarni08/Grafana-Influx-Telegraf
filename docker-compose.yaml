@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      # Increases the log level from info to debug
+      - GF_LOG_LEVEL=debug
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    ports:
+      - '3000:3000'
+    volumes:
+      - 'grafana_storage:/apps/storage/grafana'
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: unless-stopped
+    environment:
+      - DOCKER_INFLUXDB_INIT_USERNAME=myusername
+      - DOCKER_INFLUXDB_INIT_PASSWORD=passwordpasswordpassword
+    ports:
+      - '8086:8086'
+    volumes:
+      - 'influx_storage:/apps/storage/influx'
+
+volumes:
+  grafana_storage:
+  influx_storage:
