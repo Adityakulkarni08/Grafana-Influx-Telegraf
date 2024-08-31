@@ -1,31 +1,42 @@
-version: '3'
+version: '3.7'
 
 services:
   grafana:
-    image: grafana/grafana-enterprise
+    image: grafana/grafana:latest
     container_name: grafana
-    restart: unless-stopped
-    environment:
-      # Increases the log level from info to debug
-      - GF_LOG_LEVEL=debug
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
     ports:
-      - '3000:3000'
+      - "3000:3000"
     volumes:
-      - 'grafana_storage:/apps/storage/grafana'
+      - /home/ec2-user/grafana-server/grafana-storage:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"  
+    restart: unless-stopped
+    depends_on:
+      - mysql
 
   influxdb:
     image: influxdb:latest
     container_name: influxdb
-    restart: unless-stopped
-    environment:
-      - DOCKER_INFLUXDB_INIT_USERNAME=myusername
-      - DOCKER_INFLUXDB_INIT_PASSWORD=passwordpasswordpassword
     ports:
-      - '8086:8086'
+      - "8086:8086"
     volumes:
-      - 'influx_storage:/apps/storage/influx'
+      - /home/ec2-user/grafana-server/influxdb-storage:/var/lib/influxdb
+    environment:
+      INFLUXDB_ADMIN_USER: "admin"  
+      INFLUXDB_ADMIN_PASSWORD: "admin"  
+      INFLUXDB_DB: "mydb"  
+    restart: unless-stopped
 
-volumes:
-  grafana_storage:
-  influx_storage:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "rootpassword"  
+      MYSQL_DATABASE: "grafana_db"  
+      MYSQL_USER: "grafana_user"  
+      MYSQL_PASSWORD: "grafana_password" 
+    ports:
+      - "3306:3306"
+    volumes:
+      - /home/ec2-user/grafana-server/mysql-storage:/var/lib/mysql
+    restart: unless-stopped
